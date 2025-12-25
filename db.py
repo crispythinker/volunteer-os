@@ -26,6 +26,8 @@ CREATE TABLE IF NOT EXISTS persona_scores (
     persona TEXT,
     confidence REAL,
     model_version TEXT,
+    prompt_version TEXT,
+    output_hash TEXT,
     created_at TEXT
 );
 
@@ -37,3 +39,4 @@ CREATE TABLE IF NOT EXISTS ingestion_meta (
 """)
 
 conn.commit()
+conn.close()

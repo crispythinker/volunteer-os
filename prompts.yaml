@@ -1,10 +1,10 @@
 prompt: |
-  Extract:
+  Extract the following from the text:
   1. Skills (list)
-  2. Persona (Mentor Material / Needs Guidance / Passive)
+  2. Persona (Mentor Material, Needs Guidance, Passive)
   3. Confidence score (0–1)
 
-  Bio:
-  "{{bio}}"
+  Respond strictly in JSON.
 
-  Respond in JSON only.
+  Text:
+  "{{bio}}"

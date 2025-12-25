@@ -1,25 +1,31 @@
 import pandas as pd
-from datetime import datetime
+from datetime import datetime, timezone
 import sqlite3
+import db
 from enrich import enrich_bio
 
 df = pd.read_csv("members_raw.csv")
+
+NAME_COL = "member_name"
+BIO_COL = "bio_or_comment"
+
 conn = sqlite3.connect("volunteer_data.db")
 cur = conn.cursor()
 
 for _, row in df.iterrows():
+    member_id = None
     try:
-        name = str(row["Name"]).strip().title()
-        city = str(row.get("City", "Unknown")).title()
-        created = datetime.utcnow().isoformat()
+        name = str(row[NAME_COL]).strip().title()
+        city = "Unknown"
+        created_at = datetime.now(timezone.utc).isoformat()
 
         cur.execute(
             "INSERT INTO members (name, city, created_at) VALUES (?, ?, ?)",
-            (name, city, created)
+            (name, city, created_at)
         )
         member_id = cur.lastrowid
 
-        skills, persona, confidence = enrich_bio(row["Bio_or_comment"])
+        skills, persona, confidence, model_v, out_hash = enrich_bio(row[BIO_COL])
 
         for skill in skills:
             cur.execute("INSERT OR IGNORE INTO skills (name) VALUES (?)", (skill,))
@@ -31,8 +37,12 @@ for _, row in df.iterrows():
             )
 
         cur.execute(
-            "INSERT INTO persona_scores VALUES (?, ?, ?, ?, ?)",
-            (member_id, persona, confidence, "v1", created)
+            """
+            INSERT INTO persona_scores
+            (member_id, persona, confidence, model_version, prompt_version, output_hash, created_at)
+            VALUES (?, ?, ?, ?, ?, ?, ?)
+            """,
+            (member_id, persona, confidence, "model-v1", model_v, out_hash, created_at)
         )
 
         cur.execute(
@@ -43,7 +53,10 @@ for _, row in df.iterrows():
     except Exception as e:
         cur.execute(
             "INSERT INTO ingestion_meta VALUES (?, ?, ?)",
-            (member_id if 'member_id' in locals() else None, "FAILED", str(e))
+            (member_id, "FAILED", str(e))
         )
 
 conn.commit()
+conn.close()
+
+print("Pipeline completed successfully.")
