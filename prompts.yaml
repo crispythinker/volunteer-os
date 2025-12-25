@@ -1,0 +1,10 @@
+prompt: |
+  Extract:
+  1. Skills (list)
+  2. Persona (Mentor Material / Needs Guidance / Passive)
+  3. Confidence score (0–1)
+
+  Bio:
+  "{{bio}}"
+
+  Respond in JSON only.
