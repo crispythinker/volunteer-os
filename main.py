@@ -4,6 +4,7 @@ import sqlite3
 import db
 from enrich import enrich_bio
 
+# Load CSV
 df = pd.read_csv("members_raw.csv")
 
 NAME_COL = "member_name"
@@ -25,7 +26,7 @@ for _, row in df.iterrows():
         )
         member_id = cur.lastrowid
 
-        skills, persona, confidence, model_v, out_hash = enrich_bio(row[BIO_COL])
+        skills, persona, confidence, model_v, prompt_v, out_hash = enrich_bio(row[BIO_COL])
 
         for skill in skills:
             cur.execute("INSERT OR IGNORE INTO skills (name) VALUES (?)", (skill,))
@@ -42,7 +43,7 @@ for _, row in df.iterrows():
             (member_id, persona, confidence, model_version, prompt_version, output_hash, created_at)
             VALUES (?, ?, ?, ?, ?, ?, ?)
             """,
-            (member_id, persona, confidence, "model-v1", model_v, out_hash, created_at)
+            (member_id, persona, confidence, model_v, prompt_v, out_hash, created_at)
         )
 
         cur.execute(

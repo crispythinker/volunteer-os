@@ -1,10 +1,12 @@
 prompt: |
-  Extract the following from the text:
-  1. Skills (list)
-  2. Persona (Mentor Material, Needs Guidance, Passive)
-  3. Confidence score (0–1)
+  Extract structured information from the text below.
+  Respond ONLY in valid JSON.
 
-  Respond strictly in JSON.
+  JSON format:
+  {
+    "skills": ["skill1", "skill2"],
+    "persona": "Mentor Material | Needs Guidance | Passive"
+  }
 
   Text:
   "{{bio}}"
